@@ -1,0 +1,18 @@
+# Exclude sensitive files
+.streamlit/secrets.toml
+
+# Exclude temporary uploaded files
+uploaded_temp.pdf
+
+# Exclude Python cache files
+__pycache__/
+*.pyc
+
+# Exclude virtual environments
+env/
+.venv/
+
+# Exclude IDE configuration files
+.vscode/
+*.idea/
+ECHO is on.
