@@ -1,9 +1,12 @@
 streamlit
 streamlit-chat
 pypdf
+langchain
 langchain-core
 langchain-community
+langchain-qdrant
 sentence-transformers
 qdrant-client
-langchain-qdrant
 langchain-google-genai
+python-dotenv
+huggingface-hub
