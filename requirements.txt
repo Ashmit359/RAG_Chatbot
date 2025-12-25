@@ -1,15 +1,16 @@
-streamlit
-streamlit-chat
-pypdf
-langchain==0.1.151
-langchain-core
-langchain-community
-langchain-qdrant
-langchain-google-genai
-sentence-transformers
-qdrant-client
-python-dotenv
-huggingface-hub
+streamlit==1.26.0
+streamlit-chat==0.1.1
+pypdf==3.12.0
+langchain==0.1.20
+langchain-text-splitters==0.0.1
+langchain-community==0.0.38
+langchain-core==0.1.52
+langchain-qdrant==0.1.0
+langchain-google-genai==1.0.1
+qdrant-client==1.9.0
+sentence-transformers==2.2.2
+langchain-huggingface
+
 
 
 
