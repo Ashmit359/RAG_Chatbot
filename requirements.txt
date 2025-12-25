@@ -1,16 +1,16 @@
-streamlit==1.26.0
+streamlit
 streamlit-chat
 pypdf
-torch>=2.2.0
 langchain==0.1.151
 langchain-core
 langchain-community
 langchain-qdrant
-langchain-google-genai==0.0.8
-sentence-transformers==2.2.2
-qdrant-client==1.2.0
+langchain-google-genai
+sentence-transformers
+qdrant-client
 python-dotenv
 huggingface-hub
+
 
 
 
