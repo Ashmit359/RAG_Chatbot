@@ -64,7 +64,7 @@ def process_pdf(pdf_file):
     return doc_list
 
 # Step 4: Convert Text into Embeddings for Vector Search
-from langchain_community.embeddings import HuggingFaceEmbeddings 
+from langchain_huggingface import HuggingFaceEmbeddings 
 
 embed_model = HuggingFaceEmbeddings(model_name='BAAI/bge-small-en-v1.5')
 
