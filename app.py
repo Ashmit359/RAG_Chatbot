@@ -25,7 +25,7 @@ def handle_userinput(user_question):
     
         result = st.session_state.conversation.invoke({"question": user_question})
         
-        response = result.content if hasattr(result, 'content') else "Uh-oh! Softel Solutions’ network is taking a nap. We’ll wake it up and find the answer for you."
+        response = result.content if hasattr(result, 'content') else "Uh-oh! Softel Solutions' network is taking a nap. We'll wake it up and find the answer for you."
         
         st.session_state.chat_history.append(f"You: {user_question}")
         st.session_state.chat_history.append(f"Bot: {response}")
@@ -43,7 +43,7 @@ def handle_userinput(user_question):
 import os  
 from langchain_core.documents import Document 
 from langchain_community.document_loaders import PyPDFLoader  
-from langchain.text_splitter import RecursiveCharacterTextSplitter  
+from langchain_text_splitters import RecursiveCharacterTextSplitter  # CHANGED THIS LINE
 
 
 # Function to process the uploaded PDF file
@@ -135,7 +135,7 @@ if st.session_state.processComplete:
 
 # Step 8: Build the Main App
 def main():
-    st.sidebar.button("Upload a PDF & Softel Bot’s ready to help!")
+    st.sidebar.button("Upload a PDF & Softel Bot's ready to help!")
 
 if __name__ == "__main__":
     main()
