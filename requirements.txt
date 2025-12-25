@@ -5,8 +5,8 @@ langchain
 langchain-core
 langchain-community
 langchain-qdrant
+langchain-google-genai
 sentence-transformers
 qdrant-client
-langchain-google-genai
 python-dotenv
 huggingface-hub
