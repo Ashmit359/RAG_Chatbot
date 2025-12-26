@@ -1,4 +1,4 @@
-# Softel Assist Bot
+# Softel Ai ChatBot
 
 The **Softel Assist Bot** is an AI-powered chatbot application that interacts with users to answer questions based on the content of uploaded PDF documents. Built with Streamlit, LangChain, Qdrant, and Google Gemini Model, the bot allows users to upload PDFs, processes the content for semantic understanding, and generates context-aware answers.
 
