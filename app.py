@@ -1,156 +1,201 @@
+# ==============================
+# IMPORTS & CONFIG
+# ==============================
 import streamlit as st
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import RetrievalQA
-import tempfile
-import os
 
-# ------------------ PAGE CONFIG ------------------
 st.set_page_config(
-    page_title="Softel AI Chatbot",
+    page_title="Softel Assist Bot",
     page_icon="🤖",
     layout="wide"
 )
 
-# ------------------ THEME SWITCH ------------------
-theme = st.toggle("🌙 Dark Mode")
+# ==============================
+# FORCE CLEAR SIDEBAR (CRITICAL FIX)
+# ==============================
+sidebar = st.sidebar.empty()
 
-if theme:
-    st.markdown("""
-        <style>
-        body { background-color: #0E1117; color: white; }
-        </style>
-    """, unsafe_allow_html=True)
+with sidebar.container():
 
-# ------------------ HEADER ------------------
-col1, col2 = st.columns([1, 8])
+    st.markdown("## ⚙️ Controls")
 
-with col1:
-    if os.path.exists("logo.png"):
-        st.image("logo.png", width=80)
+    # Reset Chat
+    if st.button("Reset Chat"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.experimental_rerun()
 
-with col2:
-    st.markdown("""
-    ## 🤖 Softel AI Chatbot  
-    **AI-powered PDF Question Answering System**
-    """)
+    st.markdown("---")
 
-# ------------------ ABOUT MODAL ------------------
-with st.expander("ℹ️ About Project"):
-    st.markdown("""
-    **Softel AI Chatbot** is a Retrieval-Augmented Generation (RAG) system that:
-    - Reads PDF documents
-    - Converts text into embeddings
-    - Stores them in Qdrant
-    - Answers questions using Google Gemini
-
-    **Tech Stack**
-    - Streamlit
-    - LangChain
-    - Qdrant
-    - HuggingFace Embeddings
-    - Google Gemini
-    """)
-
-# ------------------ DEVELOPER SECTION ------------------
-st.markdown("""
-### 👨‍💻 Developer  
-**Ashmit Sinha**  
-Cloud • DevOps • GenAI Engineer  
-
-🔗 **Connect with me:**  
-- [LinkedIn](https://www.linkedin.com/in/ashmit-sinha-372115b0/)  
-- [GitHub](https://github.com/Ashmit359/)  
-- [X (Twitter)](https://x.com/sinha359)  
-- [Instagram](https://www.instagram.com/ashmit.sinha359/)
-""")
-
-st.divider()
-
-# ------------------ FILE UPLOAD ------------------
-uploaded_file = st.file_uploader(
-    "📄 Upload a PDF file",
-    type=["pdf"],
-    help="Limit 200MB per file • PDF only"
-)
-
-# ------------------ EMBEDDINGS (FREE) ------------------
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
-# ------------------ QDRANT CLIENT ------------------
-qdrant_client = QdrantClient(
-    path="./qdrant_data"
-)
-
-# ------------------ PROCESS PDF ------------------
-if uploaded_file:
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(uploaded_file.read())
-        pdf_path = tmp.name
-
-    loader = PyPDFLoader(pdf_path)
-    documents = loader.load()
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
+    # Upload PDF
+    uploaded_file = st.file_uploader(
+        "Upload a PDF file",
+        type="pdf"
     )
 
-    docs = splitter.split_documents(documents)
+    st.markdown("---")
+
+    # Developer section (ONLY HERE)
+    st.markdown("### 👨‍💻 Developer")
+    st.markdown(
+        """
+        **Ashmit Sinha**  
+        Cloud • DevOps • GenAI Engineer  
+
+        🔗 **Connect with me:**  
+        - [LinkedIn](https://www.linkedin.com/in/ashmit-sinha-372115b0/)  
+        - [GitHub](https://github.com/Ashmit359/)  
+        - [X (Twitter)](https://x.com/sinha359)  
+        - [Instagram](https://www.instagram.com/ashmit.sinha359/)
+        """
+    )
+
+# ==============================
+# STICKY FOOTER CSS
+# ==============================
+st.markdown(
+    """
+    <style>
+    .block-container {
+        padding-bottom: 80px;
+    }
+    .sticky-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #0e1117;
+        color: #999;
+        text-align: center;
+        padding: 10px;
+        font-size: 13px;
+        z-index: 999;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==============================
+# HEADER
+# ==============================
+st.markdown(
+    """
+    <h1 style="text-align:center;">Softel Assist Bot</h1>
+    <p style="text-align:center; color:#b0b0b0;">
+        Developed by <b>Ashmit Sinha</b> | Cloud • DevOps • Generative AI Engineer
+    </p>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown("---")
+
+# ==============================
+# SESSION STATE
+# ==============================
+if "conversation" not in st.session_state:
+    st.session_state.conversation = None
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+if "processComplete" not in st.session_state:
+    st.session_state.processComplete = False
+
+# ==============================
+# CHAT UI
+# ==============================
+from streamlit_chat import message
+
+def handle_userinput(user_question):
+    with st.spinner("Generating response..."):
+        result = st.session_state.conversation.invoke({"question": user_question})
+        response = result.content if hasattr(result, "content") else "No answer found."
+
+        st.session_state.chat_history.append(("user", user_question))
+        st.session_state.chat_history.append(("bot", response))
+
+    for i, (role, text) in enumerate(st.session_state.chat_history):
+        message(text, is_user=(role == "user"), key=str(i))
+
+# ==============================
+# PDF + RAG PIPELINE
+# ==============================
+from langchain_core.documents import Document
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_qdrant import QdrantVectorStore
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableMap
+from operator import itemgetter
+
+def process_pdf(path):
+    loader = PyPDFLoader(path)
+    pages = loader.load()
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=150)
+    docs = []
+    for page in pages:
+        for chunk in splitter.split_text(page.page_content):
+            docs.append(Document(page_content=chunk))
+    return docs
+
+if uploaded_file:
+    with open("temp.pdf", "wb") as f:
+        f.write(uploaded_file.read())
+
+    docs = process_pdf("temp.pdf")
+
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model="models/embedding-001",
+        api_key=st.secrets["GEMINI_API_KEY"]
+    )
 
     vectorstore = QdrantVectorStore.from_documents(
-        documents=docs,
-        embedding=embeddings,
-        client=qdrant_client,
-        collection_name="pdf_rag"
+        docs,
+        embeddings,
+        url=st.secrets["QDRANT_URL"],
+        api_key=st.secrets["QDRANT_API_KEY"],
+        collection_name="Softel-Assist-Bot",
+        force_recreate=True
     )
 
-    st.success("✅ PDF processed successfully")
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
-    # ------------------ LLM (GEMINI CHAT ONLY) ------------------
+    prompt = ChatPromptTemplate.from_template(
+        "Answer using only the context:\n{context}\n\nQuestion:\n{question}"
+    )
+
     llm = ChatGoogleGenerativeAI(
         model="gemini-1.5-flash",
-        temperature=0.3
+        api_key=st.secrets["GEMINI_API_KEY"],
+        temperature=0
     )
 
-    qa = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=vectorstore.as_retriever(),
-        chain_type="stuff"
+    st.session_state.conversation = (
+        RunnableMap({
+            "question": itemgetter("question"),
+            "context": itemgetter("question") | retriever
+        }) | prompt | llm
     )
 
-    # ------------------ CHAT ------------------
-    query = st.text_input("💬 Ask a question from the PDF")
+    st.session_state.processComplete = True
+    st.success("✅ PDF processed successfully")
 
-    if query:
-        with st.spinner("Thinking..."):
-            response = qa.run(query)
-            st.markdown("### 🤖 Answer")
-            st.write(response)
+# ==============================
+# USER INPUT
+# ==============================
+if st.session_state.processComplete:
+    question = st.chat_input("Ask a question about the PDF")
+    if question:
+        handle_userinput(question)
 
-# ------------------ STICKY FOOTER ------------------
-st.markdown("""
-<style>
-.footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #0E1117;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    font-size: 14px;
-}
-</style>
-
-<div class="footer">
-© 2025 Ashmit Sinha • Built with Streamlit, LangChain, Qdrant & Google Gemini
-</div>
-""", unsafe_allow_html=True)
+# ==============================
+# STICKY FOOTER
+# ==============================
+st.markdown(
+    """
+    <div class="sticky-footer">
+        © 2025 Ashmit Sinha • Built with Streamlit, LangChain, Qdrant & Google Gemini
+    </div>
+    """,
+    unsafe_allow_html=True
+)
