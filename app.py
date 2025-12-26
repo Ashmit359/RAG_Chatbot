@@ -1,5 +1,5 @@
 # ==============================
-# IMPORTS & CONFIG
+# IMPORTS & PAGE CONFIG
 # ==============================
 import streamlit as st
 
@@ -10,110 +10,48 @@ st.set_page_config(
 )
 
 # ==============================
-# THEME TOGGLE
+# GLOBAL CSS (FOOTER FIX)
 # ==============================
-if "theme" not in st.session_state:
-    st.session_state.theme = "dark"
-
-def toggle_theme():
-    st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-
-theme_css = """
-<style>
-body {
-    background-color: %s;
-    color: %s;
-}
-footer {visibility: hidden;}
-.stApp {
-    margin-bottom: 60px;
-}
-.sticky-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%%;
-    background: #0e1117;
-    color: #aaa;
-    text-align: center;
-    padding: 10px;
-    font-size: 13px;
-    z-index: 100;
-}
-</style>
-""" % (
-    "#0e1117" if st.session_state.theme == "dark" else "#ffffff",
-    "#ffffff" if st.session_state.theme == "dark" else "#000000",
+st.markdown(
+    """
+    <style>
+    .block-container {
+        padding-bottom: 80px;
+    }
+    .sticky-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #0e1117;
+        color: #999;
+        text-align: center;
+        padding: 10px;
+        font-size: 13px;
+        z-index: 999;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
-st.markdown(theme_css, unsafe_allow_html=True)
-
 # ==============================
-# HEADER WITH LOGO
+# HEADER (CENTER ONLY)
 # ==============================
-col1, col2 = st.columns([1, 6])
-
-with col1:
-    st.image("logo.png", width=80)
-
-with col2:
-    st.markdown(
-        """
-        <h1 style="margin-bottom:0;">Softel Assist Bot</h1>
-        <p style="color:#b0b0b0; margin-top:0;">
-        Developed by <b>Ashmit Sinha</b> | Cloud • DevOps • GenAI Engineer
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ==============================
-# TOP ACTION BUTTONS
-# ==============================
-colA, colB, colC = st.columns([1, 1, 6])
-
-with colA:
-    st.button("🌗 Toggle Theme", on_click=toggle_theme)
-
-with colB:
-    if st.button("ℹ️ About Project"):
-        st.session_state.show_about = True
-
-# ==============================
-# ABOUT PROJECT MODAL
-# ==============================
-if st.session_state.get("show_about"):
-    with st.modal("About Softel Assist Bot"):
-        st.markdown(
-            """
-            ### 🤖 Softel Assist Bot
-
-            **Softel Assist Bot** is an intelligent document assistant built using  
-            **Retrieval-Augmented Generation (RAG)** architecture.
-
-            **🔧 Tech Stack**
-            - Streamlit (UI)
-            - LangChain (Orchestration)
-            - Google Gemini (LLM + Embeddings)
-            - Qdrant (Vector Database)
-
-            **🎯 Use Case**
-            - Ask questions from uploaded PDFs
-            - Context-aware answers
-            - Enterprise-ready document intelligence
-
-            **👨‍💻 Developer**
-            Ashmit Sinha  
-            Cloud • DevOps • Generative AI Engineer
-            """
-        )
-        if st.button("Close"):
-            st.session_state.show_about = False
+st.markdown(
+    """
+    <h1 style="text-align:center;">Softel Assist Bot</h1>
+    <p style="text-align:center; color:#b0b0b0;">
+        Developed by <b>Ashmit Sinha</b> | Cloud • DevOps • Generative AI Engineer
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("---")
 
 # ==============================
-# SIDEBAR
+# SIDEBAR (CORRECT ORDER)
 # ==============================
 st.sidebar.markdown("## ⚙️ Controls")
 
@@ -133,7 +71,7 @@ uploaded_file = st.sidebar.file_uploader(
 
 st.sidebar.markdown("---")
 
-# Developer section BELOW upload
+# Developer section BELOW upload (ONLY HERE)
 st.sidebar.markdown("### 👨‍💻 Developer")
 st.sidebar.markdown(
     """
@@ -175,20 +113,19 @@ def handle_userinput(user_question):
         message(text, is_user=(role == "user"), key=str(i))
 
 # ==============================
-# PDF PROCESSING
+# PDF PROCESSING & RAG
 # ==============================
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_qdrant import QdrantVectorStore
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableMap
 from operator import itemgetter
 
-def process_pdf(file_path):
-    loader = PyPDFLoader(file_path)
+def process_pdf(path):
+    loader = PyPDFLoader(path)
     pages = loader.load()
     splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=150)
     docs = []
@@ -220,7 +157,7 @@ if uploaded_file:
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
     prompt = ChatPromptTemplate.from_template(
-        "Answer using only context:\n{context}\n\nQuestion:\n{question}"
+        "Answer using only the context below:\n{context}\n\nQuestion:\n{question}"
     )
 
     llm = ChatGoogleGenerativeAI(
@@ -248,7 +185,7 @@ if st.session_state.processComplete:
         handle_userinput(question)
 
 # ==============================
-# STICKY FOOTER
+# STICKY FOOTER (BOTTOM ONLY)
 # ==============================
 st.markdown(
     """
