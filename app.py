@@ -4,7 +4,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Softel Assist Bot",
+    page_title="Softel Ai ChatBot",
     page_icon="🤖",
     layout="wide"
 )
