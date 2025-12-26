@@ -64,9 +64,12 @@ def process_pdf(pdf_file):
     return doc_list
 
 # Step 4: Convert Text into Embeddings for Vector Search
-from langchain_huggingface import HuggingFaceEmbeddings 
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-embed_model = HuggingFaceEmbeddings(model_name='BAAI/bge-small-en-v1.5')
+embed_model = GoogleGenerativeAIEmbeddings(
+    model="models/embedding-001",
+    api_key=st.secrets["GEMINI_API_KEY"]
+)
 
 
 # Step 5: Store Document Embeddings in Qdrant
