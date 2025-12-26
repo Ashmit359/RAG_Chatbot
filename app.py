@@ -80,7 +80,7 @@ st.markdown(
 # ==============================
 st.markdown(
     """
-    <h1 style="text-align:center;">Softel Assist Bot</h1>
+    <h1 style="text-align:center;">Softel Ai ChatBot</h1>
     <p style="text-align:center; color:#b0b0b0;">
         Developed by <b>Ashmit Sinha</b> | Cloud • DevOps • Generative AI Engineer
     </p>
