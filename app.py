@@ -1,5 +1,5 @@
 # ==============================
-# IMPORTS & PAGE CONFIG
+# IMPORTS & CONFIG
 # ==============================
 import streamlit as st
 
@@ -10,7 +10,47 @@ st.set_page_config(
 )
 
 # ==============================
-# GLOBAL CSS (FOOTER FIX)
+# FORCE CLEAR SIDEBAR (CRITICAL FIX)
+# ==============================
+sidebar = st.sidebar.empty()
+
+with sidebar.container():
+
+    st.markdown("## ⚙️ Controls")
+
+    # Reset Chat
+    if st.button("Reset Chat"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.experimental_rerun()
+
+    st.markdown("---")
+
+    # Upload PDF
+    uploaded_file = st.file_uploader(
+        "Upload a PDF file",
+        type="pdf"
+    )
+
+    st.markdown("---")
+
+    # Developer section (ONLY HERE)
+    st.markdown("### 👨‍💻 Developer")
+    st.markdown(
+        """
+        **Ashmit Sinha**  
+        Cloud • DevOps • GenAI Engineer  
+
+        🔗 **Connect with me:**  
+        - [LinkedIn](https://www.linkedin.com/in/ashmit-sinha-372115b0/)  
+        - [GitHub](https://github.com/Ashmit359/)  
+        - [X (Twitter)](https://x.com/sinha359)  
+        - [Instagram](https://www.instagram.com/ashmit.sinha359/)
+        """
+    )
+
+# ==============================
+# STICKY FOOTER CSS
 # ==============================
 st.markdown(
     """
@@ -36,7 +76,7 @@ st.markdown(
 )
 
 # ==============================
-# HEADER (CENTER ONLY)
+# HEADER
 # ==============================
 st.markdown(
     """
@@ -49,42 +89,6 @@ st.markdown(
 )
 
 st.markdown("---")
-
-# ==============================
-# SIDEBAR (CORRECT ORDER)
-# ==============================
-st.sidebar.markdown("## ⚙️ Controls")
-
-# Reset Chat
-if st.sidebar.button("Reset Chat"):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    st.experimental_rerun()
-
-st.sidebar.markdown("---")
-
-# Upload PDF
-uploaded_file = st.sidebar.file_uploader(
-    "Upload a PDF file",
-    type="pdf"
-)
-
-st.sidebar.markdown("---")
-
-# Developer section BELOW upload (ONLY HERE)
-st.sidebar.markdown("### 👨‍💻 Developer")
-st.sidebar.markdown(
-    """
-    **Ashmit Sinha**  
-    Cloud • DevOps • GenAI Engineer  
-
-    🔗 **Connect with me:**  
-    - [LinkedIn](https://www.linkedin.com/in/ashmit-sinha-372115b0/)  
-    - [GitHub](https://github.com/Ashmit359/)  
-    - [X (Twitter)](https://x.com/sinha359)  
-    - [Instagram](https://www.instagram.com/ashmit.sinha359/)
-    """
-)
 
 # ==============================
 # SESSION STATE
@@ -113,7 +117,7 @@ def handle_userinput(user_question):
         message(text, is_user=(role == "user"), key=str(i))
 
 # ==============================
-# PDF PROCESSING & RAG
+# PDF + RAG PIPELINE
 # ==============================
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyPDFLoader
@@ -157,7 +161,7 @@ if uploaded_file:
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
     prompt = ChatPromptTemplate.from_template(
-        "Answer using only the context below:\n{context}\n\nQuestion:\n{question}"
+        "Answer using only the context:\n{context}\n\nQuestion:\n{question}"
     )
 
     llm = ChatGoogleGenerativeAI(
@@ -174,7 +178,7 @@ if uploaded_file:
     )
 
     st.session_state.processComplete = True
-    st.sidebar.success("✅ PDF processed successfully")
+    st.success("✅ PDF processed successfully")
 
 # ==============================
 # USER INPUT
@@ -185,7 +189,7 @@ if st.session_state.processComplete:
         handle_userinput(question)
 
 # ==============================
-# STICKY FOOTER (BOTTOM ONLY)
+# STICKY FOOTER
 # ==============================
 st.markdown(
     """
